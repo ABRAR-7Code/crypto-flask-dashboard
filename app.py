@@ -105,7 +105,7 @@ def track_arbitrage(base_asset, quote_asset):
         "buy_from": buy_ex,
         "sell_to": sell_ex,
         "buy_price": f"${p_binance if buy_ex == 'Binance' else p_kucoin:,.4f}",
-        "sell_price": f"${p_binance if buy_ex == 'Binance' else p_kucoin:,.4f}",
+        "sell_price": f"${p_binance if buy_ex == 'Binance' else p_binance:,.4f}",
         "gap": f"{gap_pct:.2f}%",
         "is_bot": is_bot,
         "ad_link": selected_ad_link,

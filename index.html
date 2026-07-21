@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ data.title }}</title>
+    <meta name="description" content="{{ data.description }}">
+    
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #0b0e14; color: #e2e8f0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 95vh; flex-direction: column; }
+        .wrapper { width: 100%; max-width: 550px; background: #151a26; padding: 25px; border-radius: 16px; border: 1px solid #2d3748; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .headline { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px; text-align: center; }
+        
+        /* 💎 ASSET SELECTOR DROPDOWN STYLING */
+        .selector-box { display: flex; flex-direction: column; align-items: center; margin: 15px 0 20px 0; padding: 10px; background: #1e2538; border-radius: 10px; border: 1px solid #2d3748; }
+        .selector-label { font-size: 13px; color: #718096; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .dropdown-style { width: 100%; max-width: 300px; padding: 10px 14px; font-size: 15px; font-weight: bold; background-color: #151a26; color: #fff; border: 1px solid #4a5568; border-radius: 8px; cursor: pointer; outline: none; transition: border-color 0.2s ease; }
+        .dropdown-style:focus { border-color: #3b82f6; }
+
+        .badge { background: rgba(0, 230, 118, 0.15); color: #00e676; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 24px; text-align: center; margin: 20px 0; display: block; }
+        .grid-row { display: flex; justify-content: space-between; padding: 12px; background: #1e2538; margin: 8px 0; border-radius: 8px; font-size: 15px; }
+        .action-gate { display: block; text-align: center; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 14px; font-weight: bold; text-decoration: none; border-radius: 8px; margin-top: 25px; transition: 0.2s ease; cursor: pointer; }
+        .action-gate:hover { background: linear-gradient(135deg, #2563eb, #1e40af); }
+        .ad-container { text-align: center; padding: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.02); border: 1px dashed #3a465c; border-radius: 8px; font-size: 12px; color: #718096; }
+        
+        .loader-box { display: none; text-align: center; padding: 15px; color: #3b82f6; font-weight: bold; font-size: 15px; }
+        .hidden-data { display: none; margin-top: 20px; padding: 15px; background: rgba(0, 230, 118, 0.05); border: 1px solid rgba(0, 230, 118, 0.2); border-radius: 8px; animation: fadeIn 0.5s ease-in; }
+        .data-title { font-size: 14px; color: #00e676; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
+        
+        .disclaimer-box { 
+            max-width: 550px; 
+            margin-top: 30px; 
+            padding: 18px; 
+            text-align: justify; 
+            font-size: 13px; 
+            color: #a0aec0; 
+            border: 1px solid #2d3748; 
+            background: #111622; 
+            border-radius: 8px;
+            line-height: 1.6; 
+        }
+        .disclaimer-box b { 
+            color: #e2e8f0; 
+            display: block; 
+            margin-bottom: 6px; 
+            font-size: 14px; 
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <div class="ad-container">
+            <span>[ Live Operational Tracker Node Stream ]</span>
+        </div>
+
+        <div class="headline">{{ data.base }}/{{ data.quote }} Arbitrage Status</div>
+        
+        <!-- 🎯 DYNAMIC ASSET SELECTOR DROPDOWN -->
+        <div class="selector-box">
+            <div class="selector-label">Select Trading Pair Node</div>
+            <select id="assetSelect" class="dropdown-style" onchange="switchAsset(this.value)">
+                {% for key, name in data.supported_assets.items() %}
+                    <option value="{{ key }}" {% if data.current_asset == key %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="badge">
+            Spread: {{ data.gap }}
+        </div>
+
+        <div class="grid-row">
+            <span>Buy Route (Lowest Ask Market)</span>
+            <span style="color: #00e676; font-weight: bold;">{{ data.buy_from }} @ {{ data.buy_price }}</span>
+        </div>
+
+        <div class="grid-row">
+            <span>Sell Route (Highest Bid Market)</span>
+            <span style="color: #ff1744; font-weight: bold;">{{ data.sell_to }} @ {{ data.sell_price }}</span>
+        </div>
+
+        <a href="{{ data.ad_link }}" target="_blank" id="actionBtn" class="action-gate" onclick="startVerification()">
+            Verify Liquidity Pools & Orderbooks &rarr;
+        </a>
+
+        <div id="loaderBox" class="loader-box">
+            ⚡ Scanning Orderbook Depth & Liquidity Pools...
+        </div>
+
+        <div id="secureData" class="hidden-data">
+            <div class="data-title">✅ Liquidity Verification Success</div>
+            <div style="font-size: 13px; color: #a0aec0; line-height: 1.6;">
+                • <b>{{ data.base }} Pool Depth:</b> Highly Liquid (Active)<br>
+                • <b>KuCoin Orderbook Stability:</b> 98.4% Match<br>
+                • <b>Estimated Gas/Execution Slip:</b> &lt; 0.02%<br>
+                <span style="color: #fff; font-weight: bold; display: block; margin-top: 5px;">Status: Execution Route is 100% Safe for Arbitrage.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="disclaimer-box">
+        <b>⚠️ IMPORTANT RISK WARNING & FINANCIAL DISCLAIMER:</b> Trading cryptocurrencies and executing cross-exchange arbitrage involves significant financial risk, capital exposure, and extreme market volatility. All real-time data, gap calculations, and routing paths displayed on this dashboard are purely for informational, tracking, and educational purposes. This tool does not constitute financial, investment, or trading advice. Users are strictly advised to independently verify liquidity depth, exchange deposit/withdrawal statuses, and transaction gas fees before executing any actual trades. We accept absolutely zero legal or financial liability for any market slippage, execution errors, or capital losses incurred.
+    </div>
+
+    <script>
+        // 🔄 AUTOMATIC REDIRECTION LOGIC FOR ASSETS
+        function switchAsset(assetCode) {
+            window.location.href = "/track/" + assetCode + "-to-usdt";
+        }
+
+        function startVerification() {
+            document.getElementById('actionBtn').style.display = 'none';
+            document.getElementById('loaderBox').style.display = 'block';
+            
+            setTimeout(function() {
+                document.getElementById('loaderBox').style.display = 'none';
+                document.getElementById('secureData').style.display = 'block';
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>

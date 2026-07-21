@@ -82,15 +82,10 @@ def track_arbitrage(base_asset, quote_asset):
     p_binance, p_kucoin = get_live_prices(base_lower, quote_asset)
         
     # Calculate Spread Directional Gaps
-    if p_binance > p_kucoin:
-        buy_ex, sell_ex = "KuCoin", "Binance"
-        spread = p_binance - p_kucoin
-        gap_pct = (spread / p_kucoin) * 100
-    else:
-        buy_ex, sell_ex = "Binance", "KuCoin"
-        spread = p_kucoin - p_binance
-        gap_pct = (spread / p_binance) * 100
-
+    "buy_from": buy_ex,
+        "sell_to": sell_ex,
+        "buy_price": f"${buy_price_val:,.4f}",
+        "sell_price": f"${sell_price_val:,.4f}",
     # Spintax dynamic generation
     dynamic_desc = f"{random.choice(GREETINGS)}: A {random.choice(INTROS)} has yielded a secure spread potential."
 
